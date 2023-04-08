@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
-import axios from 'axios'
 import { useInfiniteQuery } from '@tanstack/react-query'
-
+import axios from '@/api/axiosInstance'
 import { SearchParam } from '@/types/'
 
 // components
@@ -41,9 +40,7 @@ const App = () => {
   }
 
   const getListJobs = async (nextPage = 1, search: SearchParam) => {
-    const { data } = await axios.get(
-      `http://dev3.dansmultipro.co.id/api/recruitment/positions.json?page=${nextPage}${getSearchQuery(search)}`
-    )
+    const { data } = await axios.get(`recruitment/positions.json?page=${nextPage}${getSearchQuery(search)}`)
     return data
   }
 
