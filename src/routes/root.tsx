@@ -4,18 +4,18 @@ import { createBrowserRouter } from 'react-router-dom'
 import BaseLayout from '@/layouts/baseLayout'
 
 // pages
-import App from '../App'
-import Detail from '@/pages/Detail'
+import PositionPage from '@/pages/Position'
+import PositionDetail from '@/pages/Position/Detail'
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <BaseLayout />,
     children: [
-      { index: true, element: <App /> },
+      { index: true, element: <PositionPage /> },
       {
         path: ':id',
-        element: <Detail />,
+        element: <PositionDetail />,
       },
     ],
   },

@@ -1,5 +1,5 @@
 import { FC, useState, useEffect } from 'react'
-import { useGoogleLogin, googleLogout } from '@react-oauth/google'
+import { useGoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 
