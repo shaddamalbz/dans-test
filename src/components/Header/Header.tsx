@@ -2,7 +2,7 @@ import { FC, useState, useEffect } from 'react'
 import { useGoogleLogin, TokenResponse } from '@react-oauth/google'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
-import FacebookLogin, { ProfileSuccessResponse } from '@greatsumini/react-facebook-login'
+import FacebookLogin from '@greatsumini/react-facebook-login'
 import { FaFacebook } from 'react-icons/fa'
 
 import Dropdown from '@/components/Dropdown'
