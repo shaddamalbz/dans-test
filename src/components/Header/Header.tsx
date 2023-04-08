@@ -1,14 +1,17 @@
 import { FC, useState, useEffect } from 'react'
-import { useGoogleLogin } from '@react-oauth/google'
+import { useGoogleLogin, TokenResponse } from '@react-oauth/google'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 
+import Dropdown from '@/components/Dropdown'
+import { Profile } from '@/types/'
+
 const Header: FC = () => {
-  const [user, setUser] = useState<any>({})
-  const [profile, setProfile] = useState<any>(null)
+  const [user, setUser] = useState<TokenResponse>()
+  const [profile, setProfile] = useState<Profile>()
 
   const login = useGoogleLogin({
-    onSuccess: (codeResponse: any) => setUser(codeResponse),
+    onSuccess: (res) => setUser(res),
   })
 
   useEffect(() => {
@@ -34,10 +37,20 @@ const Header: FC = () => {
         </Link>
 
         {profile ? (
-          <div className="flex items-center gap-x-1">
-            <img className="h-10 rounded-full" src={profile.picture} alt="user image" />
-            <p>{profile.name}</p>
-          </div>
+          <Dropdown
+            className="text-black"
+            triggerButton={<img className="h-10 rounded-full" src={profile.picture} alt="user image" />}
+          >
+            <div>
+              <div className="flex gap-x-2 items-center p-4">
+                <img className="h-10 rounded-full" src={profile.picture} alt="user image" />
+                <div>
+                  <div>{profile.name}</div>
+                  <div className="text-xs">{profile.email}</div>
+                </div>
+              </div>
+            </div>
+          </Dropdown>
         ) : (
           <button onClick={() => login()}>Sign in with Google 🚀 </button>
         )}

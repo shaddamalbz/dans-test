@@ -28,6 +28,7 @@ const ListPosition: FC<ListPosition> = (props) => {
             </div>
           }
           style={{ overflow: 'visible' }}
+          endMessage={<p style={{ textAlign: 'center' }}>There is no more position available</p>}
         >
           {status === 'success' &&
             data &&
