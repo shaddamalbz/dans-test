@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import axios from 'axios'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { Position, SearchParam } from '@/types/'
 
@@ -8,11 +10,18 @@ import CardJob from '@/components/Card/CardJob'
 import Spinner from '@/components/Spinner'
 
 const App = () => {
-  const [listJobs, setlistJobs] = useState<Position[]>([])
-  const [search, setSearch] = useState<SearchParam>()
-  const [loading, setLoading] = useState<boolean>(true)
-  const [loadingNext, setLoadingNext] = useState<boolean>(false)
-  const [page, setPage] = useState<number>(1)
+  const [search, setSearch] = useState<SearchParam>({})
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const { data, fetchNextPage, status, hasNextPage, refetch, isFetching } = useInfiniteQuery(
+    ['position'],
+    ({ pageParam = 1 }) => getListJobs(pageParam, search),
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        return currentPage + 1
+      },
+    }
+  )
 
   const getSearchQuery = (search?: SearchParam) => {
     let searchQuery: string[] = []
@@ -24,36 +33,19 @@ const App = () => {
       })
     }
 
-    return searchQuery.join('&')
-  }
-
-  const getListJobs = async () => {
-    setLoading(true)
-
-    const searchQuery = getSearchQuery(search)
-    let url = `http://dev3.dansmultipro.co.id/api/recruitment/positions.json`
-
-    if (searchQuery) {
-      url += `?${searchQuery}`
+    if (searchQuery.length === 0) {
+      return ''
     }
 
-    await axios
-      .get(url)
-      .then((res) => {
-        if (res.status === 200) {
-          setlistJobs(res.data)
-        }
-      })
-      .finally(() => setLoading(false))
+    return `&${searchQuery.join('&')}`
   }
 
-  useEffect(() => {
-    getListJobs()
-
-    return () => {
-      setPage(1)
-    }
-  }, [])
+  const getListJobs = async (nextPage = 1, search: SearchParam) => {
+    const { data } = await axios.get(
+      `http://dev3.dansmultipro.co.id/api/recruitment/positions.json?page=${nextPage}${getSearchQuery(search)}`
+    )
+    return data
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.type === 'checkbox') {
@@ -66,59 +58,44 @@ const App = () => {
     }
   }
 
-  const searchJobs = () => {
-    setlistJobs([])
-    getListJobs()
-  }
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      searchJobs()
+      refetch()
     }
   }
 
-  const nextPage = () => {
-    setLoadingNext(true)
-    axios
-      .get(`http://dev3.dansmultipro.co.id/api/recruitment/positions.json?page=${page + 1}`)
-      .then((res) => {
-        if (res.status === 200) {
-          const newList = [...listJobs, ...res.data].filter((job) => job !== null)
-          setlistJobs(newList)
-          setPage(page + 1)
-        }
-      })
-      .finally(() => setLoadingNext(false))
+  const position = useMemo(() => data?.pages.reduce((prev, page: any): any => [...prev, ...page]), [data])
+
+  if (status === 'loading') {
+    return (
+      <div className="grid place-content-center my-4">
+        <Spinner />
+      </div>
+    )
   }
-
-  useEffect(() => {
-    function handleScroll() {
-      const isScrolledToBottom = window.innerHeight + window.scrollY > document.body.offsetHeight
-
-      console.table({ window: window.innerHeight + window.scrollY, document: document.body.offsetHeight })
-
-      if (isScrolledToBottom) {
-        nextPage()
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll)
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [listJobs])
 
   return (
     <>
       <section className="container flex justify-between items-center gap-x-4 mx-auto my-4">
         <div className="grow flex flex-col">
           <label htmlFor="description">Job Desription</label>
-          <input type="text" name="description" onChange={handleChange} onKeyDown={handleKeyDown} />
+          <input
+            className="rounded border border-gray-300"
+            type="text"
+            name="description"
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+          />
         </div>
         <div className="grow flex flex-col">
           <label htmlFor="location">Location</label>
-          <input type="text" name="location" onChange={handleChange} onKeyDown={handleKeyDown} />
+          <input
+            className="rounded border border-gray-300"
+            type="text"
+            name="location"
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+          />
         </div>
         <div className="mt-4">
           <input type="checkbox" name="full_time" id="full_time" onChange={handleChange} />
@@ -126,8 +103,12 @@ const App = () => {
             Full Time Only
           </label>
         </div>
-        <button className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded mt-4" onClick={() => searchJobs()}>
-          Search
+        <button
+          className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded mt-4"
+          onClick={() => refetch()}
+          disabled={isFetching}
+        >
+          {isFetching ? <Spinner /> : 'Search'}
         </button>
       </section>
 
@@ -135,23 +116,21 @@ const App = () => {
         <div className="container mx-auto py-4">
           <h2 className="font-bold text-3xl py-4">Job List</h2>
 
-          {!loading ? (
-            listJobs.length > 0 ? (
-              listJobs.map((job, idx) => <CardJob key={idx} data={job} />)
-            ) : (
-              <div className="grid place-content-center">Empty</div>
-            )
-          ) : (
-            <div className="grid place-content-center">
-              <Spinner />
-            </div>
-          )}
-
-          {loadingNext && (
-            <div className="grid place-content-center">
-              <Spinner />
-            </div>
-          )}
+          <InfiniteScroll
+            dataLength={position?.length || 0}
+            next={() => fetchNextPage()}
+            hasMore={!!hasNextPage}
+            loader={
+              <div className="grid place-content-center">
+                <Spinner />
+              </div>
+            }
+            style={{ overflow: 'visible' }}
+          >
+            {status === 'success' &&
+              position &&
+              position.map((position: Position, idx: number) => position && <CardJob key={idx} data={position} />)}
+          </InfiniteScroll>
         </div>
       </section>
     </>

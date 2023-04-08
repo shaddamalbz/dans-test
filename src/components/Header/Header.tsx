@@ -9,13 +9,7 @@ const Header: FC = () => {
 
   const login = useGoogleLogin({
     onSuccess: (codeResponse: any) => setUser(codeResponse),
-    onError: (error) => console.log('Login Failed:', error),
   })
-
-  const logOut = () => {
-    googleLogout()
-    setProfile(null)
-  }
 
   useEffect(() => {
     if (user) {
@@ -29,7 +23,6 @@ const Header: FC = () => {
         .then((res) => {
           setProfile(res.data)
         })
-        .catch((err) => console.log(err))
     }
   }, [user])
 
