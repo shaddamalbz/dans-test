@@ -1,28 +1,19 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-100;
 }
 
-header {
-  height: 80px;
-  display: grid;
-  place-content: center;
+ul {
+  @apply list-disc px-4 mb-2;
 }
 
-header nav {
-  display: flex;
-  gap: 1rem;
+p {
+  @apply mb-2;
 }
 
-main {
-  height: calc(100vh - 160px);
-  display: grid;
-  place-content: center;
-}
-
-footer {
-  height: 80px;
-  display: grid;
-  place-content: center;
+a {
+  @apply text-blue-400;
 }

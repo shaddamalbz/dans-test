@@ -4,8 +4,8 @@ import { createBrowserRouter } from 'react-router-dom'
 import BaseLayout from '@/layouts/baseLayout'
 
 // pages
-import About from '@/pages/About'
 import App from '../App'
+import Detail from '@/pages/Detail'
 
 const router = createBrowserRouter([
   {
@@ -14,8 +14,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <App /> },
       {
-        path: 'about',
-        element: <About />,
+        path: ':id',
+        element: <Detail />,
       },
     ],
   },
