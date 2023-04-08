@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import axios from '@/api/axiosInstance'
 import { SearchParam } from '@/types/'
+import getSearchQuery from '@/utils/getSearchQuery'
 
 // components
 import Spinner from '@/components/Spinner'
@@ -21,23 +22,6 @@ const PositionPage = () => {
       },
     }
   )
-
-  const getSearchQuery = (search?: SearchParam) => {
-    let searchQuery: string[] = []
-    if (search) {
-      Object.entries(search).map(([key, value]) => {
-        if (value !== '') {
-          searchQuery.push(`${key}=${value}`)
-        }
-      })
-    }
-
-    if (searchQuery.length === 0) {
-      return ''
-    }
-
-    return `&${searchQuery.join('&')}`
-  }
 
   const getListJobs = async (nextPage = 1, search: SearchParam) => {
     const { data } = await axios.get(`recruitment/positions.json?page=${nextPage}${getSearchQuery(search)}`)
