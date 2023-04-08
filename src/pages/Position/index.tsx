@@ -8,7 +8,7 @@ import Spinner from '@/components/Spinner'
 import SearchPosition from '@/pages/Position/components/SearchPosition'
 import ListPosition from '@/pages/Position/components/ListPosition'
 
-const App = () => {
+const PositionPage = () => {
   const [search, setSearch] = useState<SearchParam>({})
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -84,4 +84,4 @@ const App = () => {
   )
 }
 
-export default App
+export default PositionPage
