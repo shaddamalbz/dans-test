@@ -10,7 +10,7 @@ interface Position {
   description: string
 }
 
-export interface PositionDetail {
+interface PositionDetail {
   id: string
   type: string
   url: string
